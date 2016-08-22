@@ -146,7 +146,7 @@ func collectColumnsInExpr(expr *tipb.Expr, ctx *selectContext, collector map[int
 		return nil
 	}
 	if expr.GetTp() == tipb.ExprType_ColumnRef {
-		_, i, err := codec.DecodeInt(expr.Val)
+		_, i, _, err := codec.DecodeInt(expr.Val)
 		if err != nil {
 			return errors.Trace(err)
 		}

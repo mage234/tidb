@@ -52,13 +52,13 @@ func (s *testBytesSuite) TestBytesCodec(c *C) {
 		if input.desc {
 			b := EncodeBytesDesc(nil, input.enc)
 			c.Assert(b, BytesEquals, input.dec)
-			_, d, err := DecodeBytesDesc(b)
+			_, d, _, err := DecodeBytesDesc(b)
 			c.Assert(err, IsNil)
 			c.Assert(d, BytesEquals, input.enc)
 		} else {
 			b := EncodeBytes(nil, input.enc)
 			c.Assert(b, BytesEquals, input.dec)
-			_, d, err := DecodeBytes(b)
+			_, d, _, err := DecodeBytes(b)
 			c.Assert(err, IsNil)
 			c.Assert(d, BytesEquals, input.enc)
 		}
@@ -78,7 +78,7 @@ func (s *testBytesSuite) TestBytesCodec(c *C) {
 	}
 
 	for _, input := range errInputs {
-		_, _, err := DecodeBytes(input)
+		_, _, _, err := DecodeBytes(input)
 		c.Assert(err, NotNil)
 	}
 }

@@ -156,44 +156,46 @@ func DecodeOne(b []byte) (remain []byte, d types.Datum, err error) {
 	if len(b) < 1 {
 		return nil, d, errors.New("invalid encoded key")
 	}
+	oldBytes := b
 	flag := b[0]
 	b = b[1:]
+	var length int
 	switch flag {
 	case intFlag:
 		var v int64
-		b, v, err = DecodeInt(b)
+		b, v, length, err = DecodeInt(b)
 		d.SetInt64(v)
 	case uintFlag:
 		var v uint64
-		b, v, err = DecodeUint(b)
+		b, v, length, err = DecodeUint(b)
 		d.SetUint64(v)
 	case varintFlag:
 		var v int64
-		b, v, err = DecodeVarint(b)
+		b, v, length, err = DecodeVarint(b)
 		d.SetInt64(v)
 	case uvarintFlag:
 		var v uint64
-		b, v, err = DecodeUvarint(b)
+		b, v, length, err = DecodeUvarint(b)
 		d.SetUint64(v)
 	case floatFlag:
 		var v float64
-		b, v, err = DecodeFloat(b)
+		b, v, length, err = DecodeFloat(b)
 		d.SetFloat64(v)
 	case bytesFlag:
 		var v []byte
-		b, v, err = DecodeBytes(b)
+		b, v, length, err = DecodeBytes(b)
 		d.SetBytes(v)
 	case compactBytesFlag:
 		var v []byte
-		b, v, err = DecodeCompactBytes(b)
+		b, v, length, err = DecodeCompactBytes(b)
 		d.SetBytes(v)
 	case decimalFlag:
 		var v mysql.Decimal
-		b, v, err = DecodeDecimal(b)
+		b, v, length, err = DecodeDecimal(b)
 		d.SetValue(v)
 	case durationFlag:
 		var r int64
-		b, r, err = DecodeInt(b)
+		b, r, length, err = DecodeInt(b)
 		if err == nil {
 			// use max fsp, let outer to do round manually.
 			v := mysql.Duration{Duration: time.Duration(r), Fsp: mysql.MaxFsp}
@@ -206,6 +208,7 @@ func DecodeOne(b []byte) (remain []byte, d types.Datum, err error) {
 	if err != nil {
 		return b, d, errors.Trace(err)
 	}
+	d.SetEncodeKey(oldBytes[:length+1])
 	return b, d, nil
 }
 

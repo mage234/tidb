@@ -58,6 +58,7 @@ type Datum struct {
 	i         int64       // i can hold int64 uint64 float64 values.
 	b         []byte      // b can hold string or []byte values.
 	x         interface{} // f hold all other types.
+	encode    []byte
 }
 
 // Kind gets the kind of the datum.
@@ -124,6 +125,14 @@ func (d *Datum) SetString(s string) {
 	d.k = KindString
 	sink(s)
 	d.b = hack.Slice(s)
+}
+
+func (d *Datum) SetEncodeKey(key []byte) {
+	d.encode = key
+}
+
+func (d *Datum) GetEncodeKey() []byte {
+	return d.encode
 }
 
 // sink prevents s from being allocated on the stack.

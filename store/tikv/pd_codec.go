@@ -36,14 +36,14 @@ func (c *codecPDClient) GetRegion(key []byte) (*metapb.Region, *metapb.Peer, err
 		return nil, nil, nil
 	}
 	if len(region.StartKey) != 0 {
-		_, decoded, err := codec.DecodeBytes(region.StartKey)
+		_, decoded, _, err := codec.DecodeBytes(region.StartKey)
 		if err != nil {
 			return nil, nil, errors.Trace(err)
 		}
 		region.StartKey = decoded
 	}
 	if len(region.EndKey) != 0 {
-		_, decoded, err := codec.DecodeBytes(region.EndKey)
+		_, decoded, _, err := codec.DecodeBytes(region.EndKey)
 		if err != nil {
 			return nil, nil, errors.Trace(err)
 		}

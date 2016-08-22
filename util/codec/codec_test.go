@@ -224,7 +224,7 @@ func (s *testCodecSuite) TestNumberCodec(c *C) {
 
 	for _, t := range tblInt64 {
 		b := EncodeInt(nil, t)
-		_, v, err := DecodeInt(b)
+		_, v , _, err := DecodeInt(b)
 		c.Assert(err, IsNil)
 		c.Assert(v, Equals, t)
 
@@ -234,7 +234,7 @@ func (s *testCodecSuite) TestNumberCodec(c *C) {
 		c.Assert(v, Equals, t)
 
 		b = EncodeVarint(nil, t)
-		_, v, err = DecodeVarint(b)
+		_, v, _, err = DecodeVarint(b)
 		c.Assert(err, IsNil)
 		c.Assert(v, Equals, t)
 	}
@@ -257,7 +257,7 @@ func (s *testCodecSuite) TestNumberCodec(c *C) {
 
 	for _, t := range tblUint64 {
 		b := EncodeUint(nil, t)
-		_, v, err := DecodeUint(b)
+		_, v, _, err := DecodeUint(b)
 		c.Assert(err, IsNil)
 		c.Assert(v, Equals, t)
 
@@ -267,7 +267,7 @@ func (s *testCodecSuite) TestNumberCodec(c *C) {
 		c.Assert(v, Equals, t)
 
 		b = EncodeUvarint(nil, t)
-		_, v, err = DecodeUvarint(b)
+		_, v, _, err = DecodeUvarint(b)
 		c.Assert(err, IsNil)
 		c.Assert(v, Equals, t)
 	}
@@ -358,7 +358,7 @@ func (s *testCodecSuite) TestFloatCodec(c *C) {
 
 	for _, t := range tblFloat {
 		b := EncodeFloat(nil, t)
-		_, v, err := DecodeFloat(b)
+		_, v, _, err := DecodeFloat(b)
 		c.Assert(err, IsNil)
 		c.Assert(v, Equals, t)
 
@@ -414,17 +414,17 @@ func (s *testCodecSuite) TestBytes(c *C) {
 
 	for _, t := range tblBytes {
 		b := EncodeBytes(nil, t)
-		_, v, err := DecodeBytes(b)
+		_, v, _, err := DecodeBytes(b)
 		c.Assert(err, IsNil)
 		c.Assert(t, DeepEquals, v, Commentf("%v - %v - %v", t, b, v))
 
 		b = EncodeBytesDesc(nil, t)
-		_, v, err = DecodeBytesDesc(b)
+		_, v, _, err = DecodeBytesDesc(b)
 		c.Assert(err, IsNil)
 		c.Assert(t, DeepEquals, v, Commentf("%v - %v - %v", t, b, v))
 
 		b = EncodeCompactBytes(nil, t)
-		_, v, err = DecodeCompactBytes(b)
+		_, v, _, err = DecodeCompactBytes(b)
 		c.Assert(err, IsNil)
 		c.Assert(t, DeepEquals, v, Commentf("%v - %v - %v", t, b, v))
 	}

@@ -68,11 +68,12 @@ func EncodeBytes(b []byte, data []byte) []byte {
 	return result
 }
 
-func decodeBytes(b []byte, reverse bool) ([]byte, []byte, error) {
+func decodeBytes(b []byte, reverse bool) ([]byte, []byte, int, error) {
 	data := make([]byte, 0, len(b))
+	n := 0
 	for {
 		if len(b) < encGroupSize+1 {
-			return nil, nil, errors.New("insufficient bytes to decode value")
+			return nil, nil, n, errors.New("insufficient bytes to decode value")
 		}
 
 		groupBytes := b[:encGroupSize+1]
@@ -87,13 +88,13 @@ func decodeBytes(b []byte, reverse bool) ([]byte, []byte, error) {
 			padCount = encMarker - marker
 		}
 		if padCount > encGroupSize {
-			return nil, nil, errors.Errorf("invalid marker byte, group bytes %q", groupBytes)
+			return nil, nil, n, errors.Errorf("invalid marker byte, group bytes %q", groupBytes)
 		}
 
 		realGroupSize := encGroupSize - padCount
 		data = append(data, group[:realGroupSize]...)
 		b = b[encGroupSize+1:]
-
+		n += encGroupSize+1
 		if padCount != 0 {
 			var padByte = encPad
 			if reverse {
@@ -102,7 +103,7 @@ func decodeBytes(b []byte, reverse bool) ([]byte, []byte, error) {
 			// Check validity of padding bytes.
 			for _, v := range group[realGroupSize:] {
 				if v != padByte {
-					return nil, nil, errors.Errorf("invalid padding byte, group bytes %q", groupBytes)
+					return nil, nil, n, errors.Errorf("invalid padding byte, group bytes %q", groupBytes)
 				}
 			}
 			break
@@ -111,12 +112,12 @@ func decodeBytes(b []byte, reverse bool) ([]byte, []byte, error) {
 	if reverse {
 		reverseBytes(data)
 	}
-	return b, data, nil
+	return b, data, n, nil
 }
 
 // DecodeBytes decodes bytes which is encoded by EncodeBytes before,
 // returns the leftover bytes and decoded value if no error.
-func DecodeBytes(b []byte) ([]byte, []byte, error) {
+func DecodeBytes(b []byte) ([]byte, []byte, int, error) {
 	return decodeBytes(b, false)
 }
 
@@ -131,7 +132,7 @@ func EncodeBytesDesc(b []byte, data []byte) []byte {
 
 // DecodeBytesDesc decodes bytes which is encoded by EncodeBytesDesc before,
 // returns the leftover bytes and decoded value if no error.
-func DecodeBytesDesc(b []byte) ([]byte, []byte, error) {
+func DecodeBytesDesc(b []byte) ([]byte, []byte, int, error) {
 	return decodeBytes(b, true)
 }
 
@@ -145,15 +146,15 @@ func EncodeCompactBytes(b []byte, data []byte) []byte {
 }
 
 // DecodeCompactBytes decodes bytes which is encoded by EncodeCompactBytes before.
-func DecodeCompactBytes(b []byte) ([]byte, []byte, error) {
-	b, n, err := DecodeVarint(b)
+func DecodeCompactBytes(b []byte) ([]byte, []byte, int, error) {
+	b, n, _, err := DecodeVarint(b)
 	if err != nil {
-		return nil, nil, errors.Trace(err)
+		return nil, nil, 0, errors.Trace(err)
 	}
 	if int64(len(b)) < n {
-		return nil, nil, errors.Errorf("insufficient bytes to decode value, expected length: %v", n)
+		return nil, nil, 0, errors.Errorf("insufficient bytes to decode value, expected length: %v", n)
 	}
-	return b[n:], b[:n], nil
+	return b[n:], b[:n], int(n), nil
 }
 
 // See https://golang.org/src/crypto/cipher/xor.go

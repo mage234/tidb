@@ -106,7 +106,7 @@ func (e *Evaluator) Eval(expr *tipb.Expr) (types.Datum, error) {
 
 func (e *Evaluator) evalColumnRef(val []byte) (types.Datum, error) {
 	var d types.Datum
-	_, i, err := codec.DecodeInt(val)
+	_, i, _, err := codec.DecodeInt(val)
 	if err != nil {
 		return d, errors.Trace(err)
 	}
@@ -119,7 +119,7 @@ func (e *Evaluator) evalColumnRef(val []byte) (types.Datum, error) {
 
 func (e *Evaluator) evalInt(val []byte) (types.Datum, error) {
 	var d types.Datum
-	_, i, err := codec.DecodeInt(val)
+	_, i, _, err := codec.DecodeInt(val)
 	if err != nil {
 		return d, ErrInvalid.Gen("invalid int % x", val)
 	}
@@ -129,7 +129,7 @@ func (e *Evaluator) evalInt(val []byte) (types.Datum, error) {
 
 func (e *Evaluator) evalUint(val []byte) (types.Datum, error) {
 	var d types.Datum
-	_, u, err := codec.DecodeUint(val)
+	_, u, _, err := codec.DecodeUint(val)
 	if err != nil {
 		return d, ErrInvalid.Gen("invalid uint % x", val)
 	}
@@ -145,7 +145,7 @@ func (e *Evaluator) evalString(val []byte) (types.Datum, error) {
 
 func (e *Evaluator) evalFloat(val []byte, f32 bool) (types.Datum, error) {
 	var d types.Datum
-	_, f, err := codec.DecodeFloat(val)
+	_, f, _, err := codec.DecodeFloat(val)
 	if err != nil {
 		return d, ErrInvalid.Gen("invalid float % x", val)
 	}
@@ -159,7 +159,7 @@ func (e *Evaluator) evalFloat(val []byte, f32 bool) (types.Datum, error) {
 
 func (e *Evaluator) evalDecimal(val []byte) (types.Datum, error) {
 	var d types.Datum
-	_, dec, err := codec.DecodeDecimal(val)
+	_, dec, _, err := codec.DecodeDecimal(val)
 	if err != nil {
 		return d, ErrInvalid.Gen("invalid decimal % x", val)
 	}
@@ -169,7 +169,7 @@ func (e *Evaluator) evalDecimal(val []byte) (types.Datum, error) {
 
 func (e *Evaluator) evalDuration(val []byte) (types.Datum, error) {
 	var d types.Datum
-	_, i, err := codec.DecodeInt(val)
+	_, i, _, err := codec.DecodeInt(val)
 	if err != nil {
 		return d, ErrInvalid.Gen("invalid duration %d", i)
 	}

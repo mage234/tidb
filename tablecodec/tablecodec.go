@@ -74,7 +74,7 @@ func DecodeRecordKey(key kv.Key) (tableID int64, handle int64, err error) {
 	}
 
 	key = key[len(tablePrefix):]
-	key, tableID, err = codec.DecodeInt(key)
+	key, tableID, _, err = codec.DecodeInt(key)
 	if err != nil {
 		return 0, 0, errors.Trace(err)
 	}
@@ -85,7 +85,7 @@ func DecodeRecordKey(key kv.Key) (tableID int64, handle int64, err error) {
 
 	key = key[len(recordPrefixSep):]
 
-	key, handle, err = codec.DecodeInt(key)
+	key, handle, _, err = codec.DecodeInt(key)
 	if err != nil {
 		return 0, 0, errors.Trace(err)
 	}

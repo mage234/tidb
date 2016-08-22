@@ -93,7 +93,7 @@ func EncodeDecimal(b []byte, d mysql.Decimal) []byte {
 // Byte -> value sign
 // DecodeInt -> exp value
 // DecodeBytes -> abs value bytes
-func DecodeDecimal(b []byte) ([]byte, mysql.Decimal, error) {
+func DecodeDecimal(b []byte) ([]byte, mysql.Decimal, int, error) {
 	var (
 		r   = b
 		d   mysql.Decimal
@@ -103,28 +103,32 @@ func DecodeDecimal(b []byte) ([]byte, mysql.Decimal, error) {
 	// Decode value sign.
 	valSign := int64(r[0])
 	r = r[1:]
+	length := 1
+	var l int
 	if valSign == zeroSign {
 		d, err = mysql.ParseDecimal("0")
-		return r, d, errors.Trace(err)
+		return r, d, length, errors.Trace(err)
 	}
 
 	// Decode exp value.
 	expVal := int64(0)
-	r, expVal, err = DecodeInt(r)
+	r, expVal, l, err = DecodeInt(r)
+	length += l
 	if err != nil {
-		return r, d, errors.Trace(err)
+		return r, d, length, errors.Trace(err)
 	}
 
 	// Decode abs value bytes.
 	value := []byte{}
 	if valSign == negativeSign {
 		expVal = -expVal
-		r, value, err = DecodeBytesDesc(r)
+		r, value, l, err = DecodeBytesDesc(r)
 	} else {
-		r, value, err = DecodeBytes(r)
+		r, value, l, err = DecodeBytes(r)
 	}
+	length += l
 	if err != nil {
-		return r, d, errors.Trace(err)
+		return r, d, length, errors.Trace(err)
 	}
 
 	// Set decimal sign and point to value.
@@ -136,7 +140,7 @@ func DecodeDecimal(b []byte) ([]byte, mysql.Decimal, error) {
 
 	numberDecimal, err := mysql.ParseDecimal(string(value))
 	if err != nil {
-		return r, d, errors.Trace(err)
+		return r, d, length, errors.Trace(err)
 	}
 
 	expDecimal := mysql.NewDecimalFromInt(1, int32(expVal))
@@ -147,5 +151,5 @@ func DecodeDecimal(b []byte) ([]byte, mysql.Decimal, error) {
 		// So we try to get frac to the original one.
 		d.SetFracDigits(d.FracDigits() - expDecimal.Exponent())
 	}
-	return r, d, nil
+	return r, d, length, nil
 }

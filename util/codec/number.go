@@ -49,15 +49,15 @@ func EncodeIntDesc(b []byte, v int64) []byte {
 
 // DecodeInt decodes value encoded by EncodeInt before.
 // It returns the leftover un-decoded slice, decoded value if no error.
-func DecodeInt(b []byte) ([]byte, int64, error) {
+func DecodeInt(b []byte) ([]byte, int64, int, error) {
 	if len(b) < 8 {
-		return nil, 0, errors.New("insufficient bytes to decode value")
+		return nil, 0, 8, errors.New("insufficient bytes to decode value")
 	}
 
 	u := binary.BigEndian.Uint64(b[:8])
 	v := decodeCmpUintToInt(u)
 	b = b[8:]
-	return b, v, nil
+	return b, v, 8, nil
 }
 
 // DecodeIntDesc decodes value encoded by EncodeInt before.
@@ -91,14 +91,14 @@ func EncodeUintDesc(b []byte, v uint64) []byte {
 
 // DecodeUint decodes value encoded by EncodeUint before.
 // It returns the leftover un-decoded slice, decoded value if no error.
-func DecodeUint(b []byte) ([]byte, uint64, error) {
+func DecodeUint(b []byte) ([]byte, uint64, int, error) {
 	if len(b) < 8 {
-		return nil, 0, errors.New("insufficient bytes to decode value")
+		return nil, 0, 8, errors.New("insufficient bytes to decode value")
 	}
 
 	v := binary.BigEndian.Uint64(b[:8])
 	b = b[8:]
-	return b, v, nil
+	return b, v, 8, nil
 }
 
 // DecodeUintDesc decodes value encoded by EncodeInt before.
@@ -124,15 +124,15 @@ func EncodeVarint(b []byte, v int64) []byte {
 
 // DecodeVarint decodes value encoded by EncodeVarint before.
 // It returns the leftover un-decoded slice, decoded value if no error.
-func DecodeVarint(b []byte) ([]byte, int64, error) {
+func DecodeVarint(b []byte) ([]byte, int64, int, error) {
 	v, n := binary.Varint(b)
 	if n > 0 {
-		return b[n:], v, nil
+		return b[n:], v, n, nil
 	}
 	if n < 0 {
-		return nil, 0, errors.New("value larger than 64 bits")
+		return nil, 0, n, errors.New("value larger than 64 bits")
 	}
-	return nil, 0, errors.New("insufficient bytes to decode value")
+	return nil, 0, n, errors.New("insufficient bytes to decode value")
 }
 
 // EncodeUvarint appends the encoded value to slice b and returns the appended slice.
@@ -145,13 +145,13 @@ func EncodeUvarint(b []byte, v uint64) []byte {
 
 // DecodeUvarint decodes value encoded by EncodeUvarint before.
 // It returns the leftover un-decoded slice, decoded value if no error.
-func DecodeUvarint(b []byte) ([]byte, uint64, error) {
+func DecodeUvarint(b []byte) ([]byte, uint64, int, error) {
 	v, n := binary.Uvarint(b)
 	if n > 0 {
-		return b[n:], v, nil
+		return b[n:], v, n, nil
 	}
 	if n < 0 {
-		return nil, 0, errors.New("value larger than 64 bits")
+		return nil, 0, n, errors.New("value larger than 64 bits")
 	}
-	return nil, 0, errors.New("insufficient bytes to decode value")
+	return nil, 0, n, errors.New("insufficient bytes to decode value")
 }

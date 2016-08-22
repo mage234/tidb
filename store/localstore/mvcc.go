@@ -37,7 +37,7 @@ func MvccEncodeVersionKey(key kv.Key, ver kv.Version) kv.EncodedKey {
 // just returns the origin key.
 func MvccDecode(encodedKey kv.EncodedKey) (kv.Key, kv.Version, error) {
 	// Skip DataPrefix
-	remainBytes, key, err := codec.DecodeBytes([]byte(encodedKey))
+	remainBytes, key, _, err := codec.DecodeBytes([]byte(encodedKey))
 	if err != nil {
 		// should never happen
 		return nil, kv.Version{}, errors.Trace(err)

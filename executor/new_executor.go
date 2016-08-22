@@ -29,6 +29,7 @@ import (
 	"github.com/pingcap/tidb/util/codec"
 	"github.com/pingcap/tidb/util/types"
 	"github.com/pingcap/tipb/go-tipb"
+	"github.com/ngaut/log"
 )
 
 // HashJoinExec implements the hash join algorithm.
@@ -104,17 +105,27 @@ func getHashKey(cols []*expression.Column, row *Row, targetTypes []*types.FieldT
 		if vals[i].IsNull() {
 			return true, nil, nil
 		}
+		need2encode := len(vals[i].GetEncodeKey()) == 0
 		if targetTypes[i].Tp != col.RetType.Tp {
 			vals[i], err = vals[i].ConvertTo(targetTypes[i])
 			if err != nil {
 				return false, nil, errors.Trace(err)
 			}
+			need2encode = true
+		}
+		if need2encode {
+			bytes, err = codec.EncodeValue(bytes, vals[i])
+		} else {
+			bytes = append(bytes, vals[i].GetEncodeKey()...)
+		}
+		log.Errorf("get hash key %d %v need2encode %v bytes %v", i, vals[i].GetValue(), need2encode, bytes)
+		if err != nil {
+			return false, nil, errors.Trace(err)
 		}
 	}
 	if len(vals) == 0 {
 		return false, nil, nil
 	}
-	bytes, err = codec.EncodeValue(bytes, vals...)
 	return false, bytes, errors.Trace(err)
 }
 
