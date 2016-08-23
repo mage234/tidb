@@ -80,6 +80,9 @@ func (s *testCodecSuite) TestCodecKey(c *C) {
 		c.Assert(err, IsNil, comment)
 		args, err := Decode(b)
 		c.Assert(err, IsNil)
+		for i := range args {
+			args[i].SetEncodeKey(nil)
+		}
 		c.Assert(args, DeepEquals, t.Expect)
 
 		b, err = EncodeValue(nil, t.Input...)
@@ -540,6 +543,7 @@ func (s *testCodecSuite) TestDuration(c *C) {
 		v, err := Decode(b)
 		c.Assert(err, IsNil)
 		m.Fsp = mysql.MaxFsp
+		v[0].SetEncodeKey(nil)
 		c.Assert(v, DeepEquals, types.MakeDatums(m))
 	}
 
